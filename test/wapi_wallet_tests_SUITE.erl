@@ -251,8 +251,9 @@ check_unknown_wallet_id(C) ->
     CounterRef = counters:new(1, []),
     ID0 = <<"Test0">>,
     ID1 = <<"Test1">>,
-    Wallet0 = ?WALLET(PartyID)#wallet_WalletState{id = ID1},
-    Wallet1 = Wallet0#wallet_WalletState{id = ID0, name = ?STRING2},
+    Wallet0 = ?WALLET(PartyID),
+    Wallet1 = Wallet0#wallet_WalletState{id = ID1},
+    Wallet2 = Wallet1#wallet_WalletState{id = ID0, name = ?STRING2},
     _ = wapi_ct_helper:mock_services(
         [
             {bender, fun('GenerateID', _) ->
@@ -267,9 +268,9 @@ check_unknown_wallet_id(C) ->
             end},
             {fistful_wallet, fun
                 ('Create', _) ->
-                    {ok, Wallet0};
-                ('Get', {WID, _}) when WID =:= ID0 ->
                     {ok, Wallet1};
+                ('Get', {WID, _}) when WID =:= ID0 ->
+                    {ok, Wallet2};
                 ('Get', {WID, _}) when WID =:= ID1 ->
                     {throwing, #fistful_WalletNotFound{}}
             end}

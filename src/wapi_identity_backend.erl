@@ -133,12 +133,12 @@ service_call(Params, Ctx) ->
 
 marshal(
     identity_params,
-    Params = #{
+    #{
         <<"id">> := ID,
         <<"name">> := Name,
         <<"provider">> := Provider,
         <<"partyID">> := PartyID
-    }
+    } = Params
 ) ->
     ExternalID = maps:get(<<"externalID">>, Params, undefined),
     #identity_IdentityParams{

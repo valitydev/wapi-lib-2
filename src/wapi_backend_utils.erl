@@ -120,7 +120,7 @@ make_ctx(Params) ->
 -spec add_to_ctx({md(), md() | undefined} | list() | map(), context()) -> context().
 add_to_ctx({Key, Value}, Context) ->
     add_to_ctx(Key, Value, Context);
-add_to_ctx(Map, Context = #{?CTX_NS := Ctx}) when is_map(Map) ->
+add_to_ctx(Map, #{?CTX_NS := Ctx} = Context) when is_map(Map) ->
     Context#{?CTX_NS => maps:merge(Ctx, Map)};
 add_to_ctx(KVList, Context) when is_list(KVList) ->
     lists:foldl(
@@ -132,7 +132,7 @@ add_to_ctx(KVList, Context) when is_list(KVList) ->
 -spec add_to_ctx(md(), md() | undefined, context()) -> context().
 add_to_ctx(_Key, undefined, Context) ->
     Context;
-add_to_ctx(Key, Value, Context = #{?CTX_NS := Ctx}) ->
+add_to_ctx(Key, Value, #{?CTX_NS := Ctx} = Context) ->
     Context#{?CTX_NS => Ctx#{Key => Value}}.
 
 -spec get_from_ctx(md(), context()) -> md().

@@ -126,7 +126,7 @@ get(WithdrawalID, HandlerContext) ->
     {ok, response_data(), id()}
     | {error, {withdrawal, notfound}}
     | {error, {external_id, {unknown_external_id, external_id()}}}.
-get_by_external_id(ExternalID, HandlerContext = #{woody_context := WoodyContext}) ->
+get_by_external_id(ExternalID, #{woody_context := WoodyContext} = HandlerContext) ->
     PartyID = wapi_handler_utils:get_owner(HandlerContext),
     IdempotentKey = wapi_backend_utils:get_idempotent_key(withdrawal, PartyID, ExternalID),
     case bender_client:get_internal_id(IdempotentKey, WoodyContext) of
@@ -186,9 +186,9 @@ create_quote(Params, HandlerContext) ->
 
 -spec get_events(request_data(), handler_context()) ->
     {ok, response_data()} | {error, {withdrawal, notfound}}.
-get_events(Params = #{'withdrawalID' := WithdrawalId, 'limit' := Limit}, HandlerContext) ->
+get_events(#{'withdrawalID' := WithdrawalID, 'limit' := Limit} = Params, HandlerContext) ->
     Cursor = maps:get('eventCursor', Params, undefined),
-    case get_events(WithdrawalId, {Cursor, Limit}, HandlerContext) of
+    case get_events(WithdrawalID, {Cursor, Limit}, HandlerContext) of
         {ok, Events} ->
             {ok, Events};
         {exception, #fistful_WithdrawalNotFound{}} ->
@@ -199,8 +199,8 @@ get_events(Params = #{'withdrawalID' := WithdrawalId, 'limit' := Limit}, Handler
     {ok, response_data()}
     | {error, {withdrawal, notfound}}
     | {error, {event, notfound}}.
-get_event(WithdrawalId, EventId, HandlerContext) ->
-    case get_events(WithdrawalId, {EventId - 1, 1}, HandlerContext) of
+get_event(WithdrawalID, EventId, HandlerContext) ->
+    case get_events(WithdrawalID, {EventId - 1, 1}, HandlerContext) of
         {ok, [Event]} ->
             {ok, Event};
         {ok, []} ->
@@ -224,8 +224,8 @@ issue_quote_token(PartyID, Data) ->
 service_call(Params, HandlerContext) ->
     wapi_handler_utils:service_call(Params, HandlerContext).
 
-get_events(WithdrawalId, EventRange, HandlerContext) ->
-    case get_events_(WithdrawalId, EventRange, HandlerContext) of
+get_events(WithdrawalID, EventRange, HandlerContext) ->
+    case get_events_(WithdrawalID, EventRange, HandlerContext) of
         {ok, Events0} ->
             Events1 = lists:filter(fun event_filter/1, Events0),
             {ok, unmarshal({list, event}, Events1)};
@@ -233,11 +233,11 @@ get_events(WithdrawalId, EventRange, HandlerContext) ->
             Exception
     end.
 
-get_events_(WithdrawalId, EventRange, HandlerContext) ->
-    collect_events(WithdrawalId, EventRange, HandlerContext, []).
+get_events_(WithdrawalID, EventRange, HandlerContext) ->
+    collect_events(WithdrawalID, EventRange, HandlerContext, []).
 
-collect_events(WithdrawalId, {Cursor, Limit}, HandlerContext, AccEvents) ->
-    Request = {fistful_withdrawal, 'GetEvents', {WithdrawalId, marshal_event_range(Cursor, Limit)}},
+collect_events(WithdrawalID, {Cursor, Limit}, HandlerContext, AccEvents) ->
+    Request = {fistful_withdrawal, 'GetEvents', {WithdrawalID, marshal_event_range(Cursor, Limit)}},
     case service_call(Request, HandlerContext) of
         {exception, _} = Exception ->
             Exception;
@@ -245,7 +245,7 @@ collect_events(WithdrawalId, {Cursor, Limit}, HandlerContext, AccEvents) ->
             {ok, AccEvents};
         {ok, Events} ->
             ?EVENT(NewCursor, _, _) = lists:last(Events),
-            collect_events(WithdrawalId, {NewCursor, Limit - length(Events)}, HandlerContext, AccEvents ++ Events)
+            collect_events(WithdrawalID, {NewCursor, Limit - length(Events)}, HandlerContext, AccEvents ++ Events)
     end.
 
 event_filter(?EVENT(_, _, ?STATUS_CHANGE(_))) ->
@@ -299,7 +299,7 @@ is_id_unknown(
             false
     end.
 
-try_decode_quote_token(Params = #{<<"quoteToken">> := QuoteToken}) ->
+try_decode_quote_token(#{<<"quoteToken">> := QuoteToken} = Params) ->
     do(fun() ->
         {_, _, Data} = unwrap(uac_authorizer_jwt:verify(QuoteToken, #{})),
         {Quote, WalletID, DestinationID, PartyID} = unwrap(quote, wapi_withdrawal_quote:decode_token_payload(Data)),
@@ -316,14 +316,14 @@ try_decode_quote_token(Params) ->
     {ok, Params}.
 
 maybe_check_quote_token(
-    Params = #{
+    #{
         <<"quoteToken">> := #{
             quote := Quote,
             wallet_id := WalletID,
             destination_id := DestinationID,
             party_id := PartyID
         }
-    },
+    } = Params,
     HandlerContext
 ) ->
     do(fun() ->
@@ -357,12 +357,12 @@ check_quote_withdrawal(_, DestinationID) ->
 
 marshal(
     withdrawal_params,
-    Params = #{
+    #{
         <<"id">> := ID,
         <<"wallet">> := WalletID,
         <<"destination">> := DestinationID,
         <<"body">> := Body
-    }
+    } = Params
 ) ->
     ExternalID = maps:get(<<"externalID">>, Params, undefined),
     Metadata = maps:get(<<"metadata">>, Params, undefined),
@@ -378,12 +378,12 @@ marshal(
     };
 marshal(
     create_quote_params,
-    Params = #{
+    #{
         <<"walletID">> := WalletID,
         <<"currencyFrom">> := CurrencyFrom,
         <<"currencyTo">> := CurrencyTo,
         <<"cash">> := Body
-    }
+    } = Params
 ) ->
     ExternalID = maps:get(<<"externalID">>, Params, undefined),
     DestinationID = maps:get(<<"destinationID">>, Params, undefined),

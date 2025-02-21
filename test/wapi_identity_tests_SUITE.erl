@@ -279,8 +279,9 @@ check_unknown_identity_id(C) ->
     CounterRef = counters:new(1, []),
     ID0 = <<"Test0">>,
     ID1 = <<"Test1">>,
-    Identity0 = ?IDENTITY(PartyID)#identity_IdentityState{id = ID1},
-    Identity1 = Identity0#identity_IdentityState{id = ID0, name = ?STRING2},
+    Identity0 = ?IDENTITY(PartyID),
+    Identity1 = Identity0#identity_IdentityState{id = ID1},
+    Identity2 = Identity1#identity_IdentityState{id = ID0, name = ?STRING2},
     _ = wapi_ct_helper:mock_services(
         [
             {bender, fun('GenerateID', _) ->
@@ -291,9 +292,9 @@ check_unknown_identity_id(C) ->
             end},
             {fistful_identity, fun
                 ('Create', _) ->
-                    {ok, Identity0};
-                ('Get', {WID, _}) when WID =:= ID0 ->
                     {ok, Identity1};
+                ('Get', {WID, _}) when WID =:= ID0 ->
+                    {ok, Identity2};
                 ('Get', {WID, _}) when WID =:= ID1 ->
                     {throwing, #fistful_IdentityNotFound{}}
             end}

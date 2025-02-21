@@ -20,7 +20,7 @@
 get(ID) ->
     get_residence(genlib_string:to_lower(ID)).
 
-get_residence(ID = <<"rus">>) ->
+get_residence(<<"rus">> = ID) ->
     {ok, #{
         <<"id">> => genlib_string:to_upper(ID),
         <<"name">> => <<"Российская федерация"/utf8>>,

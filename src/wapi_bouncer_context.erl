@@ -137,22 +137,22 @@ build(Prototypes, {Acc0, External}) ->
     Acc1 = lists:foldl(fun({T, Params}, Acc) -> build(T, Params, Acc) end, Acc0, Prototypes),
     {Acc1, External}.
 
-build(operation, Params = #{id := OperationID}, Acc) ->
+build(operation, #{id := OperationID} = Params, Acc) ->
     Acc#ctx_v1_ContextFragment{
         wapi = #ctx_v1_ContextWalletAPI{
             op = #ctx_v1_WalletAPIOperation{
                 id = operation_id_to_binary(OperationID),
-                party = maybe(party, Params),
-                identity = maybe(identity, Params),
-                wallet = maybe(wallet, Params),
-                withdrawal = maybe(withdrawal, Params),
-                deposit = maybe(deposit, Params),
-                w2w_transfer = maybe(w2w_transfer, Params),
-                source = maybe(source, Params),
-                destination = maybe(destination, Params),
+                party = 'maybe'(party, Params),
+                identity = 'maybe'(identity, Params),
+                wallet = 'maybe'(wallet, Params),
+                withdrawal = 'maybe'(withdrawal, Params),
+                deposit = 'maybe'(deposit, Params),
+                w2w_transfer = 'maybe'(w2w_transfer, Params),
+                source = 'maybe'(source, Params),
+                destination = 'maybe'(destination, Params),
                 report = wapi_handler_utils:maybe_with(report, Params, fun genlib:to_binary/1),
-                file = maybe(file, Params),
-                webhook = maybe(webhook, Params)
+                file = 'maybe'(file, Params),
+                webhook = 'maybe'(webhook, Params)
             },
             grants = wapi_handler_utils:maybe_with(grants, Params, fun build_grants/1)
         }
@@ -198,9 +198,9 @@ build_wallet_entity(Type, Params, {IDKey, ID}) ->
 
 build_wallet_entity_(deposit, #{<<"wallet">> := WalletID}) ->
     #{wallet => WalletID};
-build_wallet_entity_(webhook, Webhook = #{<<"identityID">> := Identity}) ->
-    Scope = maybe(<<"scope">>, Webhook),
-    WalletID = maybe(<<"walletID">>, Scope),
+build_wallet_entity_(webhook, #{<<"identityID">> := Identity} = Webhook) ->
+    Scope = 'maybe'(<<"scope">>, Webhook),
+    WalletID = 'maybe'(<<"walletID">>, Scope),
     #{identity => Identity, wallet => WalletID};
 build_wallet_entity_(report, #{<<"files">> := Files}) ->
     #{files => lists:map(fun(#{<<"id">> := FileID}) -> FileID end, Files)};
@@ -212,75 +212,75 @@ build_wallet_entity_(_, _) ->
 
 build_entity_ctx({identity, Data}) ->
     #base_Entity{
-        id = maybe(id, Data),
+        id = 'maybe'(id, Data),
         type = <<"Identity">>,
-        party = maybe(party, Data)
+        party = 'maybe'(party, Data)
     };
 build_entity_ctx({wallet, Data}) ->
     #base_Entity{
-        id = maybe(id, Data),
+        id = 'maybe'(id, Data),
         type = <<"Wallet">>,
-        party = maybe(party, Data),
+        party = 'maybe'(party, Data),
         wallet = #base_WalletAttrs{
             body = wapi_handler_utils:maybe_with(cash, Data, fun build_cash/1)
         }
     };
 build_entity_ctx({withdrawal, Data}) ->
     #base_Entity{
-        id = maybe(id, Data),
+        id = 'maybe'(id, Data),
         type = <<"Withdrawal">>,
-        party = maybe(party, Data)
+        party = 'maybe'(party, Data)
     };
 build_entity_ctx({deposit, Data}) ->
     #base_Entity{
-        id = maybe(id, Data),
+        id = 'maybe'(id, Data),
         type = <<"Deposit">>,
         wallet = #base_WalletAttrs{
-            wallet = maybe(wallet, Data)
+            wallet = 'maybe'(wallet, Data)
         }
     };
 build_entity_ctx({w2w_transfer, Data}) ->
     #base_Entity{
-        id = maybe(id, Data),
+        id = 'maybe'(id, Data),
         type = <<"W2WTransfer">>,
-        party = maybe(party, Data)
+        party = 'maybe'(party, Data)
     };
 build_entity_ctx({source, Data}) ->
     #base_Entity{
-        id = maybe(id, Data),
+        id = 'maybe'(id, Data),
         type = <<"Source">>,
-        party = maybe(party, Data)
+        party = 'maybe'(party, Data)
     };
 build_entity_ctx({destination, Data}) ->
     #base_Entity{
-        id = maybe(id, Data),
+        id = 'maybe'(id, Data),
         type = <<"Destination">>,
-        party = maybe(party, Data)
+        party = 'maybe'(party, Data)
     };
 build_entity_ctx({webhook, Data}) ->
     #base_Entity{
-        id = maybe(id, Data),
+        id = 'maybe'(id, Data),
         type = <<"WalletWebhook">>,
         wallet = #base_WalletAttrs{
-            identity = maybe(identity, Data),
-            wallet = maybe(wallet, Data)
+            identity = 'maybe'(identity, Data),
+            wallet = 'maybe'(wallet, Data)
         }
     };
 build_entity_ctx({report, Data}) ->
     #base_Entity{
-        id = maybe(id, Data),
+        id = 'maybe'(id, Data),
         type = <<"WalletReport">>,
         wallet = #base_WalletAttrs{
-            identity = maybe(identity, Data),
+            identity = 'maybe'(identity, Data),
             report = wapi_handler_utils:maybe_with(files, Data, fun build_report_attrs/1)
         }
     }.
 
 %%
 
-maybe(_Name, undefined) ->
+'maybe'(_Name, undefined) ->
     undefined;
-maybe(Name, Params) ->
+'maybe'(Name, Params) ->
     maps:get(Name, Params, undefined).
 
 operation_id_to_binary(V) ->
@@ -291,17 +291,17 @@ build_grants(Grants) when is_list(Grants) ->
 
 build_grant(Grant) ->
     #ctx_v1_WalletGrant{
-        wallet = maybe(wallet, Grant),
-        destination = maybe(destination, Grant),
+        wallet = 'maybe'(wallet, Grant),
+        destination = 'maybe'(destination, Grant),
         body = wapi_handler_utils:maybe_with(body, Grant, fun build_cash/1),
-        created_at = maybe(created_at, Grant),
-        expires_on = maybe(expires_on, Grant)
+        created_at = 'maybe'(created_at, Grant),
+        expires_on = 'maybe'(expires_on, Grant)
     }.
 
 build_cash(Cash) ->
     #base_Cash{
-        amount = maybe(amount, Cash),
-        currency = maybe(currency, Cash)
+        amount = 'maybe'(amount, Cash),
+        currency = 'maybe'(currency, Cash)
     }.
 
 build_set(L) when is_list(L) ->

@@ -129,12 +129,12 @@ service_call(Params, Ctx) ->
 
 marshal(
     wallet_params,
-    Params = #{
+    #{
         <<"id">> := ID,
         <<"name">> := Name,
         <<"identity">> := IdentityID,
         <<"currency">> := CurrencyID
-    }
+    } = Params
 ) ->
     ExternalID = maps:get(<<"externalID">>, Params, undefined),
     #wallet_WalletParams{

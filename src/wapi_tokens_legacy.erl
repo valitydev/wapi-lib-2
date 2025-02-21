@@ -63,21 +63,21 @@ get_signee() ->
 
 %%
 
-resolve_token_spec({destinations, DestinationId}) ->
+resolve_token_spec({destinations, DestinationID}) ->
     #{
         <<"resource_access">> => #{
             ?DOMAIN => uac_acl:from_list(
-                [{[party, {destinations, DestinationId}], write}]
+                [{[party, {destinations, DestinationID}], write}]
             )
         }
     };
-resolve_token_spec({wallets, WalletId, #{<<"amount">> := Amount, <<"currency">> := Currency}}) ->
+resolve_token_spec({wallets, WalletID, #{<<"amount">> := Amount, <<"currency">> := Currency}}) ->
     #{
         <<"amount">> => Amount,
         <<"currency">> => Currency,
         <<"resource_access">> => #{
             ?DOMAIN => uac_acl:from_list(
-                [{[party, {wallets, WalletId}], write}]
+                [{[party, {wallets, WalletID}], write}]
             )
         }
     }.

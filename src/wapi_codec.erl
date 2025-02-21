@@ -101,7 +101,7 @@ marshal(resource_descriptor, {bank_card, BinDataID}) ->
     {bank_card, #'fistful_base_ResourceDescriptorBankCard'{
         bin_data_id = marshal(msgpack, BinDataID)
     }};
-marshal(bank_card, BankCard = #{token := Token}) ->
+marshal(bank_card, #{token := Token} = BankCard) ->
     Bin = maps:get(bin, BankCard, undefined),
     PaymentSystem = maps:get(payment_system, BankCard, undefined),
     MaskedPan = maps:get(masked_pan, BankCard, undefined),
@@ -127,13 +127,13 @@ marshal(bank_card_auth_data, {session, #{session_id := ID}}) ->
     {session_data, #'fistful_base_SessionAuthData'{
         id = marshal(string, ID)
     }};
-marshal(crypto_wallet, CryptoWallet = #{id := ID, currency := Currency}) ->
+marshal(crypto_wallet, #{id := ID, currency := Currency} = CryptoWallet) ->
     #'fistful_base_CryptoWallet'{
         id = marshal(string, ID),
         currency = marshal(crypto_currency, Currency),
         tag = maybe_marshal(string, maps:get(tag, CryptoWallet, undefined))
     };
-marshal(digital_wallet, Wallet = #{id := ID, payment_service := PaymentService}) ->
+marshal(digital_wallet, #{id := ID, payment_service := PaymentService} = Wallet) ->
     #'fistful_base_DigitalWallet'{
         id = marshal(string, ID),
         token = maybe_marshal(string, maps:get(token, Wallet, undefined)),
@@ -141,7 +141,7 @@ marshal(digital_wallet, Wallet = #{id := ID, payment_service := PaymentService})
         account_name = maps:get(account_name, Wallet, undefined),
         account_identity_number = maps:get(account_identity_number, Wallet, undefined)
     };
-marshal(generic_resource, Resource = #{payment_service := PaymentService}) ->
+marshal(generic_resource, #{payment_service := PaymentService} = Resource) ->
     Data = maybe_marshal(content, maps:get(data, Resource, undefined)),
     #'fistful_base_ResourceGenericData'{
         provider = marshal(payment_service, PaymentService),

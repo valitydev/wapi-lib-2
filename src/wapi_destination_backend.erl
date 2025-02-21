@@ -139,7 +139,7 @@ get(DestinationID, HandlerContext) ->
     {ok, response_data(), id()}
     | {error, {destination, notfound}}
     | {error, {external_id, {unknown_external_id, external_id()}}}.
-get_by_external_id(ExternalID, HandlerContext = #{woody_context := WoodyContext}) ->
+get_by_external_id(ExternalID, #{woody_context := WoodyContext} = HandlerContext) ->
     PartyID = wapi_handler_utils:get_owner(HandlerContext),
     IdempotentKey = wapi_backend_utils:get_idempotent_key(destination, PartyID, ExternalID),
     case bender_client:get_internal_id(IdempotentKey, WoodyContext) of
@@ -216,7 +216,7 @@ construct_resource(
         }},
     {ok, wapi_codec:marshal(resource, ConstructedResource)};
 construct_resource(
-    Resource = #{<<"type">> := GenericResourceType},
+    #{<<"type">> := GenericResourceType} = Resource,
     Context
 ) ->
     case prepare_generic_resource_data(GenericResourceType, Resource, Context) of
@@ -273,13 +273,13 @@ service_call(Params, Context) ->
 
 marshal(
     destination_params,
-    Params = #{
+    #{
         <<"id">> := ID,
         <<"identity">> := IdentityID,
         <<"currency">> := CurrencyID,
         <<"name">> := Name,
         <<"resourceThrift">> := Resource
-    }
+    } = Params
 ) ->
     ExternalID = maps:get(<<"externalID">>, Params, undefined),
     AuthData = maps:get(<<"additionalAuthData">>, Params, undefined),

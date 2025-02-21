@@ -102,8 +102,8 @@ handle_response(Response) ->
 handle_response(Code, _, _) when Code =:= 204 ->
     {ok, undefined};
 handle_response(303, Headers, _) ->
-    URL = proplists:get_value(<<"Location">>, Headers),
-    {ok, {redirect, URL}};
+    Url = proplists:get_value(<<"Location">>, Headers),
+    {ok, {redirect, Url}};
 handle_response(Code, _, Body) when Code div 100 == 2 ->
     %% 2xx HTTP code
     {ok, decode_body(Body)};

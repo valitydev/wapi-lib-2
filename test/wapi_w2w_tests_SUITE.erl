@@ -227,8 +227,9 @@ check_unknown_w2w_id(C) ->
     CounterRef = counters:new(1, []),
     ID0 = <<"Test0">>,
     ID1 = <<"Test1">>,
-    W2WTransfer0 = ?W2W_TRANSFER(PartyID)#w2w_transfer_W2WTransferState{id = ID1},
-    W2WTransfer1 = W2WTransfer0#w2w_transfer_W2WTransferState{id = ID0, wallet_from_id = ?STRING2},
+    W2WTransfer0 = ?W2W_TRANSFER(PartyID),
+    W2WTransfer1 = W2WTransfer0#w2w_transfer_W2WTransferState{id = ID1},
+    W2WTransfer2 = W2WTransfer1#w2w_transfer_W2WTransferState{id = ID0, wallet_from_id = ?STRING2},
     _ = wapi_ct_helper:mock_services(
         [
             {bender, fun('GenerateID', _) ->
@@ -243,9 +244,9 @@ check_unknown_w2w_id(C) ->
             end},
             {fistful_w2w_transfer, fun
                 ('Create', _) ->
-                    {ok, W2WTransfer0};
-                ('Get', {WID, _}) when WID =:= ID0 ->
                     {ok, W2WTransfer1};
+                ('Get', {WID, _}) when WID =:= ID0 ->
+                    {ok, W2WTransfer2};
                 ('Get', {WID, _}) when WID =:= ID1 ->
                     {throwing, #fistful_W2WNotFound{}}
             end}

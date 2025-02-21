@@ -608,8 +608,9 @@ check_unknown_withdrawal_id(C) ->
     CounterRef = counters:new(1, []),
     ID0 = <<"Test0">>,
     ID1 = <<"Test1">>,
-    Withdrawal0 = ?WITHDRAWAL(PartyID)#wthd_WithdrawalState{id = ID1},
-    Withdrawal1 = Withdrawal0#wthd_WithdrawalState{id = ID0, wallet_id = ?STRING2},
+    Withdrawal0 = ?WITHDRAWAL(PartyID),
+    Withdrawal1 = Withdrawal0#wthd_WithdrawalState{id = ID1},
+    Withdrawal2 = Withdrawal1#wthd_WithdrawalState{id = ID0, wallet_id = ?STRING2},
     _ = wapi_ct_helper:mock_services(
         [
             {bender, fun('GenerateID', _) ->
@@ -628,9 +629,9 @@ check_unknown_withdrawal_id(C) ->
             end},
             {fistful_withdrawal, fun
                 ('Create', _) ->
-                    {ok, Withdrawal0};
-                ('Get', {WID, _}) when WID =:= ID0 ->
                     {ok, Withdrawal1};
+                ('Get', {WID, _}) when WID =:= ID0 ->
+                    {ok, Withdrawal2};
                 ('Get', {WID, _}) when WID =:= ID1 ->
                     {throwing, #fistful_WithdrawalNotFound{}}
             end}

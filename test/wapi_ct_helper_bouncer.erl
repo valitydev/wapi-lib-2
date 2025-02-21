@@ -224,7 +224,7 @@ combine_fragments(Fragments) ->
     [Fragment | Rest] = maps:values(Fragments),
     lists:foldl(fun combine_fragments/2, Fragment, Rest).
 
-combine_fragments(Fragment1 = #ctx_v1_ContextFragment{}, Fragment2 = #ctx_v1_ContextFragment{}) ->
+combine_fragments(#ctx_v1_ContextFragment{} = Fragment1, #ctx_v1_ContextFragment{} = Fragment2) ->
     combine_records(Fragment1, Fragment2).
 
 combine_records(Record1, Record2) ->

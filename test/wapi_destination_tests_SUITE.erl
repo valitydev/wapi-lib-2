@@ -402,8 +402,9 @@ check_unknown_destination_id(C) ->
     CounterRef = counters:new(1, []),
     ID0 = <<"Test0">>,
     ID1 = <<"Test1">>,
-    Destination0 = ?DESTINATION(PartyID)#destination_DestinationState{id = ID1},
-    Destination1 = Destination0#destination_DestinationState{id = ID0, name = ?STRING2},
+    Destination0 = ?DESTINATION(PartyID),
+    Destination1 = Destination0#destination_DestinationState{id = ID1},
+    Destination2 = Destination1#destination_DestinationState{id = ID0, name = ?STRING2},
     _ = wapi_ct_helper:mock_services(
         [
             {bender, fun('GenerateID', _) ->
@@ -418,9 +419,9 @@ check_unknown_destination_id(C) ->
             end},
             {fistful_destination, fun
                 ('Create', _) ->
-                    {ok, Destination0};
-                ('Get', {WID, _}) when WID =:= ID0 ->
                     {ok, Destination1};
+                ('Get', {WID, _}) when WID =:= ID0 ->
+                    {ok, Destination2};
                 ('Get', {WID, _}) when WID =:= ID1 ->
                     {throwing, #fistful_DestinationNotFound{}}
             end}

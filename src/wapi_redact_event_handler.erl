@@ -13,9 +13,9 @@
 new(Secrets, Handlers) ->
     {?MODULE, {lists:usort(Secrets), Handlers}}.
 
--spec handle_event(Event, RpcId, Meta, Opts) -> ok when
+-spec handle_event(Event, RpcID, Meta, Opts) -> ok when
     Event :: woody_event_handler:event(),
-    RpcId :: woody:rpc_id() | undefined,
+    RpcID :: woody:rpc_id() | undefined,
     Meta :: woody_event_handler:event_meta(),
     Opts :: options().
 handle_event(Event, RpcID, Meta, {Secrets, Handlers}) ->

@@ -120,7 +120,7 @@ attach_deadline(undefined, Context) ->
 attach_deadline(Deadline, Context) ->
     woody_context:set_deadline(Deadline, Context).
 
-do_authorize_api_key(SwagContext = #{auth_context := PreAuthContext}, WoodyContext) ->
+do_authorize_api_key(#{auth_context := PreAuthContext} = SwagContext, WoodyContext) ->
     case wapi_auth:authorize_api_key(PreAuthContext, make_token_context(SwagContext), WoodyContext) of
         {ok, AuthContext} ->
             SwagContext#{auth_context => AuthContext};

@@ -18,7 +18,7 @@ jobs:
       thrift-version: ${{ steps.thrift-version.outputs.version }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - run: grep -v '^#' .env >> $GITHUB_ENV
       - id: otp-version
         run: echo "::set-output name=version::$OTP_VERSION"
@@ -30,7 +30,7 @@ jobs:
   run:
     name: Run checks
     needs: setup
-    uses: valitydev/erlang-workflows/.github/workflows/erlang-parallel-build.yml@v1.0.15
+    uses: valitydev/erlang-workflows/.github/workflows/erlang-parallel-build.yml@v1.0.17
     with:
       otp-version: ${{ needs.setup.outputs.otp-version }}
       rebar-version: ${{ needs.setup.outputs.rebar-version }}
